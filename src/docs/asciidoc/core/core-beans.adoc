@@ -4607,8 +4607,8 @@ Annotation injection is performed before XML injection. Thus, the XML configurat
 overrides the annotations for properties wired through both approaches.
 ====
 
-As always, you can register them as individual bean definitions, but they can also be
-implicitly registered by including the following tag in an XML-based Spring
+As always, you can register the post-processors as individual bean definitions, but they
+can also be implicitly registered by including the following tag in an XML-based Spring
 configuration (notice the inclusion of the `context` namespace):
 
 [source,xml,indent=0,subs="verbatim,quotes"]
@@ -4627,11 +4627,13 @@ configuration (notice the inclusion of the `context` namespace):
 	</beans>
 ----
 
-(The implicitly registered post-processors include
-{api-spring-framework}/beans/factory/annotation/AutowiredAnnotationBeanPostProcessor.html[`AutowiredAnnotationBeanPostProcessor`],
-{api-spring-framework}/context/annotation/CommonAnnotationBeanPostProcessor.html[`CommonAnnotationBeanPostProcessor`],
-{api-spring-framework}/orm/jpa/support/PersistenceAnnotationBeanPostProcessor.html[`PersistenceAnnotationBeanPostProcessor`], and
-{api-spring-framework}/beans/factory/annotation/RequiredAnnotationBeanPostProcessor.html[`RequiredAnnotationBeanPostProcessor`].)
+The `<context:annotation-config/>` element implicitly registers the following post-processors:
+
+* {api-spring-framework}/context/annotation/ConfigurationClassPostProcessor.html[`ConfigurationClassPostProcessor`]
+* {api-spring-framework}/beans/factory/annotation/AutowiredAnnotationBeanPostProcessor.html[`AutowiredAnnotationBeanPostProcessor`]
+* {api-spring-framework}/context/annotation/CommonAnnotationBeanPostProcessor.html[`CommonAnnotationBeanPostProcessor`]
+* {api-spring-framework}/orm/jpa/support/PersistenceAnnotationBeanPostProcessor.html[`PersistenceAnnotationBeanPostProcessor`]
+* {api-spring-framework}/context/event/EventListenerMethodProcessor.html[`EventListenerMethodProcessor`]
 
 [NOTE]
 ====
@@ -4688,10 +4690,7 @@ references and values even when you use the class outside of a container.
 [TIP]
 ====
 The {api-spring-framework}/beans/factory/annotation/RequiredAnnotationBeanPostProcessor.html[`RequiredAnnotationBeanPostProcessor`]
-must be registered as a bean to enable support for the `@Required` annotation. Note,
-however, that a `RequiredAnnotationBeanPostProcessor` bean is registered automatically
-when using the `<context:annotation-config/>` or `<context:component-scan/>` XML
-namespace elements.
+must be registered as a bean to enable support for the `@Required` annotation.
 ====
 
 [NOTE]
@@ -10653,9 +10652,8 @@ architectures that build upon the well-known Spring programming model.
 [[context-functionality-events-annotation]]
 ==== Annotation-based Event Listeners
 
-As of Spring 4.2, you can register an event listener on any public method of a managed
-bean by using the `@EventListener` annotation. The `BlockedListNotifier` can be rewritten as
-follows:
+You can register an event listener on any method of a managed bean by using the
+`@EventListener` annotation. The `BlockedListNotifier` can be rewritten as follows:
 
 [source,java,indent=0,subs="verbatim,quotes",role="primary"]
 .Java
@@ -10793,9 +10791,9 @@ method signature to return the event that should be published, as the following 
 NOTE: This feature is not supported for
 <<context-functionality-events-async, asynchronous listeners>>.
 
-This new method publishes a new `ListUpdateEvent` for every `BlockedListEvent` handled by the
-method above. If you need to publish several events, you can return a `Collection` of events
-instead.
+The `handleBlockedListEvent()` method publishes a new `ListUpdateEvent` for every
+`BlockedListEvent` that it handles. If you need to publish several events, you can return
+a `Collection` or an array of events instead.
 
 
 [[context-functionality-events-async]]
@@ -10955,8 +10953,10 @@ location path as a classpath location. You can also use location paths (resource
 with special prefixes to force loading of definitions from the classpath or a URL,
 regardless of the actual context type.
 
+
+
 [[context-functionality-startup]]
-=== Application Startup tracking
+=== Application Startup Tracking
 
 The `ApplicationContext` manages the lifecycle of Spring applications and provides a rich
 programming model around components. As a result, complex applications can have equally
